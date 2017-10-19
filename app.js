@@ -246,7 +246,7 @@ function sendLyrics(messageText, senderID) {
         if(result.count > 0) {
           var length = result.results[0].lyrics.length;
           if (length > 640) {
-            var index = result.results[0].lyrics.indexOf('\\r\\n', Math.floor(length / 2));
+            var index = result.results[0].lyrics.indexOf("\r\n", Math.floor(length / 2));
             if (index == -1) {
               index = Math.floor(length / 2);
             }
