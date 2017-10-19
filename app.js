@@ -245,16 +245,13 @@ function sendLyrics(messageText, senderID) {
       if (!error && response.statusCode == 200) {
         if(result.count > 0) {
           var length = result.results[0].lyrics.length;
-          console.log(length);
-          console.log(result.results[0].lyrics);
           if (length > 640) {
             var index = result.results[0].lyrics.indexOf('\\r\\n', Math.floor(length / 2));
             if (index == -1) {
               index = Math.floor(length / 2);
             }
-            console.log(result.results[0].lyrics.splice(0, index));
-            sendTextMessage(senderID, result.results[0].lyrics.splice(0, index));
-            sendTextMessage(senderID, result.results[0].lyrics.splice(index));
+            sendTextMessage(senderID, result.results[0].lyrics.slice(0, index));
+            sendTextMessage(senderID, result.results[0].lyrics.slice(index));
           } else {
             sendTextMessage(senderID, result.results[0].lyrics);
           }
