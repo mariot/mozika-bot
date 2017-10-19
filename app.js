@@ -1,13 +1,3 @@
-/*
- * Copyright 2016-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-/* jshint node: true, devel: true */
 'use strict';
 
 const
@@ -99,14 +89,6 @@ app.post('/webhook', function (req, res) {
           receivedAuthentication(messagingEvent);
         } else if (messagingEvent.message) {
           receivedMessage(messagingEvent);
-        } else if (messagingEvent.delivery) {
-          receivedDeliveryConfirmation(messagingEvent);
-        } else if (messagingEvent.postback) {
-          receivedPostback(messagingEvent);
-        } else if (messagingEvent.read) {
-          receivedMessageRead(messagingEvent);
-        } else if (messagingEvent.account_linking) {
-          receivedAccountLink(messagingEvent);
         } else {
           // console.log("Webhook received unknown messagingEvent: ", messagingEvent);
         }
@@ -225,7 +207,7 @@ function receivedMessage(event) {
 
   // console.log("Received message for user %d and page %d at %d with message:",
   //   senderID, recipientID, timeOfMessage);
-  console.log(JSON.stringify(message));
+  // console.log(JSON.stringify(message));
 
   var isEcho = message.is_echo;
   var messageId = message.mid;
@@ -237,54 +219,21 @@ function receivedMessage(event) {
   var messageAttachments = message.attachments;
   var quickReply = message.quick_reply;
 
-  if (isEcho) {
-    // Just logging message echoes to console
-    // console.log("Received echo for message %s and app %d with metadata %s",
-    //   messageId, appId, metadata);
-    return;
-  } else if (quickReply) {
-    var quickReplyPayload = quickReply.payload;
-    // console.log("Quick reply for message %s with payload %s",
-    //   messageId, quickReplyPayload);
-
-    switch (quickReplyPayload) {
-      case RESULTAT_PAR_NUMERO_QUICK_REPLY:
-        // sendTypingOn(senderID);
-        sendTextMessage(senderID, "Veuillez nous envoyer votre numéro d'inscription complet ( 00000000-A00/00 )");
-        // sendTypingOff(senderID);
-        break;
-      case RESULTAT_PAR_NOM_QUICK_REPLY:
-        // sendTypingOn(senderID);
-        sendTextMessage(senderID, "Veuillez nous envoyer votre nom complet");
-        // sendTypingOff(senderID);
-        break;
-    }
-
-    // sendTextMessage(senderID, "Quick reply tapped");
-    return;
-  }
-
   if (messageText) {
 
     // If we receive a text message, check to see if it matches any special
     // keywords and send back the corresponding example. Otherwise, just echo
     // the text we received.
-    switch (messageText.toLowerCase()) {
-      case 'cepe':
-        sendTextMessage(senderID, "Bonjour! Bienvenue au Bot de gestion des résultats de l'éxamen CEPE. \nChoisissez ci-dessous ou envoyez: 'CEPE numero' ou 'CEPE nom'");
-        break;
-      default:
-
-        break;
-    }
+    sendTextMessage(senderID, "Ok :)");
+    sendTextMessage(messageText.toLowerCase(), senderID);
   } else if (messageAttachments) {
-    // sendTextMessage(senderID, "Message with attachment received");
+
   }
 }
 
-function checkResultByNumber(messageText, senderID) {
+function sendLyrics(messageText, senderID) {
   messageText = encodeURIComponent(messageText);
-  var uri = 'http://www.education.gov.mg/cepe2016.sauvegarde.old/recherche_bot.php?numero='+messageText;
+  var uri = 'http://mozikascraper.herokuapp.com/scraper/song/?title='+messageText+'&artist='+messageText;
   request({
     uri: uri,
     method: 'GET',
@@ -292,17 +241,9 @@ function checkResultByNumber(messageText, senderID) {
 
   }, function (error, response, result) {
     if (!error && response.statusCode == 200) {
-      result = result.replace('Array', 'Résultat');
-      result = result.replace('[0]', 'Numéro d\'inscription');
-      result = result.replace('[1]', 'Nom et Prénom(s)');
-      result = result.replace('[2]', 'Ecole d\'origine');
-      result = result.replace('[3]', 'Centre d\'examen');
-      result = result.replace('[4]', 'Cisco');
-      result = result.replace('[5]', 'Observation');
-      result = result + "\nMerci d'avoir utilisé le Bot. Pour réutiliser, saisir le mot clé \"CEPE\" puis cliquez sur envoyer.\nSponsorisé par MyBots";
-      sendTextMessage(senderID, result);
-      // sendTextMessage(senderID, "Merci d'avoir utilisé le Bot. Pour réutiliser, saisir le mot clé \"CEPE\" puis cliquez sur envoyer.\nSponsorisé par MyBots");
-      sendGifMessage(senderID);
+      var jsonObject = JSON.parse(result);
+      if(jsonObject.count > 0)
+      sendTextMessage(senderID, jsonObject.results[0].lyrics);
     } else {
       console.error("Failed calling API");
     }
