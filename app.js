@@ -243,8 +243,8 @@ function sendLyrics(messageText, senderID) {
 
     }, function (error, response, result) {
       if (!error && response.statusCode == 200) {
-        // var jsonObject = JSON.parse(result);
-        console.log(result.results);
+        console.log(result.results[0].lyrics);
+        console.log(result.results[0].lyrics.length);
         if(result.count > 0) {
           sendTextMessage(senderID, result.results[0].lyrics);
         }
