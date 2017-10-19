@@ -207,7 +207,7 @@ function receivedMessage(event) {
 
   // console.log("Received message for user %d and page %d at %d with message:",
   //   senderID, recipientID, timeOfMessage);
-  // console.log(JSON.stringify(message));
+  console.log(JSON.stringify(message));
 
   var isEcho = message.is_echo;
   var messageId = message.mid;
@@ -234,7 +234,7 @@ function sendLyrics(messageText, senderID) {
   messageText = encodeURIComponent(messageText);
   var messageArray = messageText.split('/');
   if (messageArray.length > 1) {
-    var uri = 'http://mozikascraper.herokuapp.com/scraper/song/??format=json&title='+messageArray[0].trim()+'&artist='+messageArray[1].trim();
+    var uri = 'http://mozikascraper.herokuapp.com/scraper/song/??format=json&title='+messageArray[0].trim()+'&artist__name='+messageArray[1].trim();
     request({
       uri: uri,
       method: 'GET',
