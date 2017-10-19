@@ -233,7 +233,9 @@ function receivedMessage(event) {
 function sendLyrics(messageText, senderID) {
   var messageArray = messageText.split('/');
   if (messageArray.length > 1) {
-    var uri = 'http://mozikascraper.herokuapp.com/scraper/song/?format=json&title='+encodeURIComponent(messageArray[0].trim())+'&artist__name='+encodeURIComponent(messageArray[1].trim());
+    var title = encodeURIComponent(messageArray[0].trim());
+    var artist = encodeURIComponent(messageArray[1].trim());
+    var uri = 'http://mozikascraper.herokuapp.com/scraper/song/?format=json&title='+title+'&artist__name='+artist;
     request({
       uri: uri,
       method: 'GET',
@@ -241,8 +243,8 @@ function sendLyrics(messageText, senderID) {
 
     }, function (error, response, result) {
       if (!error && response.statusCode == 200) {
-        // var jsonObject = JSON.parse(result);
-        console.log(result);
+        var jsonObject = JSON.parse(result);
+        console.log(jsonObject);
         // if(jsonObject.count > 0) {
         //   sendTextMessage(senderID, jsonObject.results[0].lyrics);
         // }
