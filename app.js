@@ -225,7 +225,6 @@ function receivedMessage(event) {
     // keywords and send back the corresponding example. Otherwise, just echo
     // the text we received.
     sendTextMessage(senderID, "Ok :)");
-    sendTextMessage(messageText.toLowerCase(), senderID);
   } else if (messageAttachments) {
 
   }
