@@ -232,21 +232,25 @@ function receivedMessage(event) {
 
 function sendLyrics(messageText, senderID) {
   messageText = encodeURIComponent(messageText);
-  var uri = 'http://mozikascraper.herokuapp.com/scraper/song/?title='+messageText+'&artist='+messageText;
-  request({
-    uri: uri,
-    method: 'GET',
-    json: true
+  messageArray = messageText.split('/');
+  if (messageArray.length > 1) {
+    var uri = 'http://mozikascraper.herokuapp.com/scraper/song/??format=json&title='+messageArray[0].trim()+'&artist='+messageArray[1].trim();
+    request({
+      uri: uri,
+      method: 'GET',
+      json: true
 
-  }, function (error, response, result) {
-    if (!error && response.statusCode == 200) {
-      var jsonObject = JSON.parse(result);
-      if(jsonObject.count > 0)
-      sendTextMessage(senderID, jsonObject.results[0].lyrics);
-    } else {
-      console.error("Failed calling API");
-    }
-  });
+    }, function (error, response, result) {
+      if (!error && response.statusCode == 200) {
+        var jsonObject = JSON.parse(result);
+        if(jsonObject.count > 0)
+        sendTextMessage(senderID, jsonObject.results[0].lyrics);
+      } else {
+        console.error("Failed calling API");
+      }
+    });
+  }
+
 }
 
 
