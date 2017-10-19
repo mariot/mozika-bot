@@ -89,8 +89,8 @@ app.post('/webhook', function (req, res) {
           receivedAuthentication(messagingEvent);
         } else if (messagingEvent.message) {
           receivedMessage(messagingEvent);
-        } else {
-          // console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+        } else if (messagingEvent.postback) {
+          receivedPostback(messagingEvent);
         }
       });
     });
@@ -258,6 +258,31 @@ function sendLyrics(messageText, senderID) {
     });
   }
 
+}
+
+
+/*
+ * Postback Event
+ *
+ * This event is called when a postback is tapped on a Structured Message.
+ * https://developers.facebook.com/docs/messenger-platform/webhook-reference/postback-received
+ *
+ */
+function receivedPostback(event) {
+  var senderID = event.sender.id;
+  var recipientID = event.recipient.id;
+  var timeOfPostback = event.timestamp;
+
+  var payload = event.postback.payload;
+
+  console.log("Received postback for user %d and page %d with payload '%s' " +
+    "at %d", senderID, recipientID, payload, timeOfPostback);
+
+  switch (payload) {
+    case "GET_STARTED":
+      sendTextMessage(senderID, 'Alefaso ny lohanteny sy mpihira sarahan\'ny "/" \n\nOh: Ampy ahy / Zay\nOh: Nadety / Lola');
+      break;
+  }
 }
 
 
