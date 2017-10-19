@@ -231,11 +231,10 @@ function receivedMessage(event) {
 }
 
 function sendLyrics(messageText, senderID) {
-  messageText = encodeURIComponent(messageText);
   var messageArray = messageText.split('/');
   console.log(messageArray);
   if (messageArray.length > 1) {
-    var uri = 'http://mozikascraper.herokuapp.com/scraper/song/?format=json&title='+messageArray[0].trim()+'&artist__name='+messageArray[1].trim();
+    var uri = 'http://mozikascraper.herokuapp.com/scraper/song/?format=json&title='+encodeURIComponent(messageArray[0].trim())+'&artist__name='+encodeURIComponent(messageArray[1].trim());
     request({
       uri: uri,
       method: 'GET',
