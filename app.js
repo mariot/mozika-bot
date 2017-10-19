@@ -243,8 +243,10 @@ function sendLyrics(messageText, senderID) {
     }, function (error, response, result) {
       if (!error && response.statusCode == 200) {
         var jsonObject = JSON.parse(result);
-        if(jsonObject.count > 0)
-        sendTextMessage(senderID, jsonObject.results[0].lyrics);
+        console.log(jsonObject);
+        if(jsonObject.count > 0) {
+          sendTextMessage(senderID, jsonObject.results[0].lyrics);
+        }
       } else {
         console.error("Failed calling API");
       }
