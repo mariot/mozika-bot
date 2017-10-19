@@ -205,8 +205,6 @@ function receivedMessage(event) {
   var timeOfMessage = event.timestamp;
   var message = event.message;
 
-  // console.log("Received message for user %d and page %d at %d with message:",
-  //   senderID, recipientID, timeOfMessage);
   console.log(JSON.stringify(message));
 
   var isEcho = message.is_echo;
@@ -220,10 +218,6 @@ function receivedMessage(event) {
   var quickReply = message.quick_reply;
 
   if (messageText) {
-
-    // If we receive a text message, check to see if it matches any special
-    // keywords and send back the corresponding example. Otherwise, just echo
-    // the text we received.
     sendLyrics(messageText, senderID);
   } else if (messageAttachments) {
 
@@ -246,12 +240,14 @@ function sendLyrics(messageText, senderID) {
         if(result.count > 0) {
           var length = result.results[0].lyrics.length;
           if (length > 640) {
+            var lyrics = [];
             var index = result.results[0].lyrics.indexOf("\r\n", Math.floor(length / 2));
             if (index == -1) {
               index = Math.floor(length / 2);
             }
-            sendTextMessage(senderID, result.results[0].lyrics.slice(0, index));
-            sendTextMessage(senderID, result.results[0].lyrics.slice(index));
+            lyrics.push(result.results[0].lyrics.slice(0, index));
+            lyrics.push(result.results[0].lyrics.slice(index));
+            sendTextMessages(senderID, lyrics, 0);
           } else {
             sendTextMessage(senderID, result.results[0].lyrics);
           }
@@ -264,50 +260,6 @@ function sendLyrics(messageText, senderID) {
 
 }
 
-
-/*
- * Send a video using the Send API.
- *
- */
-function sendVideoMessage(recipientId) {
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      attachment: {
-        type: "video",
-        payload: {
-          url: SERVER_URL + "/assets/allofus480.mov"
-        }
-      }
-    }
-  };
-
-  callSendAPI(messageData);
-}
-
-/*
- * Send a file using the Send API.
- *
- */
-function sendFileMessage(recipientId) {
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      attachment: {
-        type: "file",
-        payload: {
-          url: SERVER_URL + "/assets/test.txt"
-        }
-      }
-    }
-  };
-
-  callSendAPI(messageData);
-}
 
 /*
  * Send a text message using the Send API.
@@ -327,12 +279,28 @@ function sendTextMessage(recipientId, messageText) {
   callSendAPI(messageData);
 }
 
+function sendTextMessages(recipientId, messageArray, i) {
+    if (i < messageArray.length) {
+        var messageData = {
+          recipient: {id: recipientId},
+          message: {text: messageArray[i]}
+        };
 
-
-/*
- * Send a Structured Message (Generic Message type) using the Send API.
- *
- */
+        request({
+          uri: 'https://graph.facebook.com/v2.6/me/messages',
+          qs: { access_token: PAGE_ACCESS_TOKEN },
+          method: 'POST',
+          json: messageData
+        }, function (error, response, body) {
+          if (error) {
+              console.log('Error sending messages: ', error);
+          } else if (response.body.error) {
+              console.log('Error: ', response.body.error);
+          }
+          sendTextMessages(recipientId, messageArray, i+1);
+        });
+    } else return
+}
 
 
 /*
