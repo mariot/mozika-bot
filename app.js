@@ -251,11 +251,15 @@ function sendLyrics(messageText, senderID) {
           } else {
             sendTextMessage(senderID, result.results[0].lyrics);
           }
+        } else {
+          sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
         }
       } else {
         console.error("Failed calling API");
       }
     });
+  } else {
+    sendTextMessage(senderID, 'Alefaso ny lohanteny sy mpihira sarahan\'ny "/" \n\nOh: Ampy ahy / Zay\nOh: Nadety / Lola');
   }
 
 }
