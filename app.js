@@ -227,9 +227,9 @@ function receivedMessage(event) {
 function sendLyrics(messageText, senderID) {
   var messageArray = messageText.split('/');
   if (messageArray.length > 1) {
-    var title = encodeURIComponent(messageArray[0].replace(/\s/g,''));
+    var title = messageArray[0].replace(/\s/g,'');
     title = removeDiacritics(title);
-    var artist = encodeURIComponent(messageArray[1].replace(/\s/g,''));
+    var artist = messageArray[1].replace(/\s/g,'');
     artist = removeDiacritics(artist)
     var uri = 'http://mozikascraper.herokuapp.com/scraper/song/?format=json&title='+title+'&artist__name='+artist;
     request({
