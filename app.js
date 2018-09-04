@@ -9,11 +9,12 @@ const
   request = require('request');
 
 var app = express();
-app.set('port', process.env.PORT || 5000);
+app.set('port', process.env.PORT || 3000);
 app.set('view engine', 'ejs');
 app.use(bodyParser.json({ verify: verifyRequestSignature }));
 app.use(express.static('public'));
 
+var lyr = require('lyrics-fetcher');
 
 /*
  * Be sure to setup your config values before running this code. You can
@@ -231,7 +232,7 @@ function sendLyrics(messageText, senderID) {
     title = removeDiacritics(title);
     var artist = messageArray[1].replace(/\s/g,'');
     artist = removeDiacritics(artist)
-    var uri = 'http://mozikascraper.herokuapp.com/scraper/song/?format=json&title='+title+'&artist__name='+artist;
+    var uri = 'https://mozikascraper.hianatra.com/scraper/song/?format=json&title='+title+'&artist__name='+artist;
     request({
       uri: uri,
       method: 'GET',
