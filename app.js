@@ -225,27 +225,29 @@ function receivedMessage(event) {
   }
 }
 
-function sendLyricsToAPI(_lyrics) {
+function sendLyricsToAPI(_senderID, _lyrics) {
     var length = _lyrics.length;
     if (length > 640) {
         var lyrics = [];
-        var index = result.results[0].lyrics.indexOf("\r\n", Math.floor(length / 2));
+        var index = _lyrics.indexOf("\r\n", Math.floor(length / 2));
         if (index == -1) {
             index = Math.floor(length / 2);
         }
-        lyrics.push(result.results[0].lyrics.slice(0, index));
-        lyrics.push(result.results[0].lyrics.slice(index));
-        sendTextMessages(senderID, lyrics, 0);
+        lyrics.push(_lyrics.slice(0, index));
+        lyrics.push(_lyrics.slice(index));
+        sendTextMessages(_senderID, lyrics, 0);
     } else {
-        sendTextMessage(senderID, result.results[0].lyrics);
+        sendTextMessage(_senderID, _lyrics);
     }
 }
 
 function sendLyrics(messageText, senderID) {
   var messageArray = messageText.split('/');
   if (messageArray.length > 1) {
+    var real_title = messageArray[0];
     var title = messageArray[0].replace(/\s/g,'');
     title = removeDiacritics(title);
+    var real_artist = messageArray[1];
     var artist = messageArray[1].replace(/\s/g,'');
     artist = removeDiacritics(artist)
     var uri = 'https://mozikascraper.hianatra.com/scraper/song/?format=json&title='+title+'&artist__name='+artist;
@@ -257,11 +259,11 @@ function sendLyrics(messageText, senderID) {
     }, function (error, response, result) {
       if (!error && response.statusCode == 200) {
         if(result.count > 0) {
-           sendLyricsToAPI(result.results[0].lyrics)
+           sendLyricsToAPI(senderID, result.results[0].lyrics)
         } else {
-          lyr.fetch(artist, title, function (err, res) {
-              if(!err) {
-                sendLyricsToAPI(res)
+          lyr.fetch(real_artist, real_title, function (err, res) {
+              if(err || res!="Sorry, We don't have lyrics for this song yet.") {
+                sendLyricsToAPI(senderID, res)
               } else {
                 sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
               }
