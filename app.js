@@ -225,6 +225,22 @@ function receivedMessage(event) {
   }
 }
 
+function sendLyricsToAPI(_lyrics) {
+    var length = _lyrics.length;
+    if (length > 640) {
+        var lyrics = [];
+        var index = result.results[0].lyrics.indexOf("\r\n", Math.floor(length / 2));
+        if (index == -1) {
+            index = Math.floor(length / 2);
+        }
+        lyrics.push(result.results[0].lyrics.slice(0, index));
+        lyrics.push(result.results[0].lyrics.slice(index));
+        sendTextMessages(senderID, lyrics, 0);
+    } else {
+        sendTextMessage(senderID, result.results[0].lyrics);
+    }
+}
+
 function sendLyrics(messageText, senderID) {
   var messageArray = messageText.split('/');
   if (messageArray.length > 1) {
@@ -241,21 +257,15 @@ function sendLyrics(messageText, senderID) {
     }, function (error, response, result) {
       if (!error && response.statusCode == 200) {
         if(result.count > 0) {
-          var length = result.results[0].lyrics.length;
-          if (length > 640) {
-            var lyrics = [];
-            var index = result.results[0].lyrics.indexOf("\r\n", Math.floor(length / 2));
-            if (index == -1) {
-              index = Math.floor(length / 2);
-            }
-            lyrics.push(result.results[0].lyrics.slice(0, index));
-            lyrics.push(result.results[0].lyrics.slice(index));
-            sendTextMessages(senderID, lyrics, 0);
-          } else {
-            sendTextMessage(senderID, result.results[0].lyrics);
-          }
+           sendLyricsToAPI(result.results[0].lyrics)
         } else {
-          sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
+          lyr.fetch(artist, title, function (err, res) {
+              if(!err) {
+                sendLyricsToAPI(res)
+              } else {
+                sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
+              }
+          });
         }
       } else {
         console.error("Failed calling API");
