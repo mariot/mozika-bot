@@ -269,8 +269,7 @@ function sendLyrics(messageText, senderID) {
                     json: true
                     }, function(error, response, result) {
                         if (!error && response.statusCode == 200) {
-                            console.log(result)
-                            if (result != {}) {
+                            if (Object.keys(result).length != 0) {
                                 sendLyricsToAPI(senderID, result['lyrics']);
                             } else {
                                 lyr.fetch(real_artist, real_title, function(err, res) {
