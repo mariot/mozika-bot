@@ -246,12 +246,12 @@ function sendLyricsToAPI(_senderID, _lyrics) {
 function sendLyrics(messageText, senderID) {
     var messageArray = messageText.split('/');
     if (messageArray.length > 1) {
-        var real_title = messageArray[0];
+        var real_title = removeDiacritics(messageArray[0]);
         var title = messageArray[0].replace(/\s/g, '');
         title = removeDiacritics(title);
-        var real_artist = messageArray[1];
+        var real_artist = removeDiacritics(messageArray[1]);
         var artist = messageArray[1].replace(/\s/g, '');
-        artist = removeDiacritics(artist)
+        artist = removeDiacritics(artist);
         var uri = 'https://mozikascraper.hianatra.com/scraper/song/?format=json&title=' + title + '&artist__name=' + artist;
         request({
             uri: uri,
@@ -263,11 +263,26 @@ function sendLyrics(messageText, senderID) {
                 if (result.count > 0) {
                     sendLyricsToAPI(senderID, result.results[0].lyrics)
                 } else {
-                    lyr.fetch(real_artist, real_title, function(err, res) {
-                        if (err || res != "Sorry, We don't have lyrics for this song yet.") {
-                            sendLyricsToAPI(senderID, res)
+                    request({
+                    uri: 'https://mozikascraper.hianatra.com/scraper/find_me/' + artist + '/' + title,
+                    method: 'GET',
+                    json: true
+                    }, function(error, response, result) {
+                        if (!error && response.statusCode == 200) {
+                            console.log(result)
+                            if (result != {}) {
+                                sendLyricsToAPI(senderID, result['lyrics']);
+                            } else {
+                                lyr.fetch(real_artist, real_title, function(err, res) {
+                                    if (err || res != "Sorry, We don't have lyrics for this song yet.") {
+                                        sendLyricsToAPI(senderID, res);
+                                    } else {
+                                        sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
+                                    }
+                                });
+                            }
                         } else {
-                            sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
+                            console.error("Failed calling MozikaScraper");
                         }
                     });
                 }
