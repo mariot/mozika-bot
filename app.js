@@ -246,10 +246,10 @@ function sendLyricsToAPI(_senderID, _lyrics) {
 function sendLyrics(messageText, senderID) {
     var messageArray = messageText.split('/');
     if (messageArray.length > 1) {
-        var real_title = removeDiacritics(messageArray[0]);
+        var real_title = removeDiacritics(messageArray[0]).trim();
         var title = messageArray[0].replace(/\s/g, '');
         title = removeDiacritics(title);
-        var real_artist = removeDiacritics(messageArray[1]);
+        var real_artist = removeDiacritics(messageArray[1]).trim();
         var artist = messageArray[1].replace(/\s/g, '');
         artist = removeDiacritics(artist);
         var uri = 'https://mozikascraper.hianatra.com/scraper/song/?format=json&title=' + title + '&artist__name=' + artist;
@@ -264,7 +264,7 @@ function sendLyrics(messageText, senderID) {
                     sendLyricsToAPI(senderID, result.results[0].lyrics)
                 } else {
                     request({
-                    uri: 'https://mozikascraper.hianatra.com/scraper/find_me/' + artist + '/' + title,
+                    uri: 'https://mozikascraper.hianatra.com/scraper/find_me/' + real_artist + '/' + real_title,
                     method: 'GET',
                     json: true
                     }, function(error, response, result) {
