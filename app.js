@@ -246,47 +246,27 @@ function sendLyricsToAPI(_senderID, _lyrics) {
 function sendLyrics(messageText, senderID) {
     var messageArray = messageText.split('/');
     if (messageArray.length > 1) {
-        var real_title = removeDiacritics(messageArray[0]).trim();
-        var title = messageArray[0].replace(/\s/g, '');
-        title = removeDiacritics(title);
-        var real_artist = removeDiacritics(messageArray[1]).trim();
-        var artist = messageArray[1].replace(/\s/g, '');
-        artist = removeDiacritics(artist);
-        var uri = 'https://mozikascraper.hianatra.com/scraper/song/?format=json&title=' + title + '&artist__name=' + artist;
+        var title = removeDiacritics(messageArray[0]).trim();
+        var artist = removeDiacritics(messageArray[1]).trim();
         request({
-            uri: uri,
-            method: 'GET',
-            json: true
-
+        uri: 'https://mozikascraper.hianatra.com/scraper/find_me/' + artist + '/' + title,
+        method: 'GET',
+        json: true
         }, function(error, response, result) {
             if (!error && response.statusCode == 200) {
-                if (result.count > 0) {
-                    sendLyricsToAPI(senderID, result.results[0].lyrics)
+                if (Object.keys(result).length != 0) {
+                    sendLyricsToAPI(senderID, result['lyrics']);
                 } else {
-                    request({
-                    uri: 'https://mozikascraper.hianatra.com/scraper/find_me/' + real_artist + '/' + real_title,
-                    method: 'GET',
-                    json: true
-                    }, function(error, response, result) {
-                        if (!error && response.statusCode == 200) {
-                            if (Object.keys(result).length != 0) {
-                                sendLyricsToAPI(senderID, result['lyrics']);
-                            } else {
-                                lyr.fetch(real_artist, real_title, function(err, res) {
-                                    if (err || res != "Sorry, We don't have lyrics for this song yet.") {
-                                        sendLyricsToAPI(senderID, res);
-                                    } else {
-                                        sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
-                                    }
-                                });
-                            }
+                    lyr.fetch(artist, title, function(err, res) {
+                        if (err || res != "Sorry, We don't have lyrics for this song yet.") {
+                            sendLyricsToAPI(senderID, res);
                         } else {
-                            console.error("Failed calling MozikaScraper");
+                            sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
                         }
                     });
                 }
             } else {
-                console.error("Failed calling API");
+                console.error("Failed calling MozikaScraper");
             }
         });
     } else {
