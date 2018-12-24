@@ -244,7 +244,7 @@ function sendLyrics(messageText, senderID) {
         var title = removeDiacritics(messageArray[0]).trim();
         var artist = removeDiacritics(messageArray[1]).trim();
         request({
-        uri: 'https://mozikascraper.hianatra.com/scraper/find_me/' + artist + '/' + title,
+        uri: 'https://mozikascraper.hianatra.com/scraper/find_me/' + artist + '/' + title + '/' + senderID,
         method: 'GET',
         json: true
         }, function(error, response, result) {
