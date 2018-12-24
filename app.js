@@ -5,7 +5,6 @@ const
     config = require('config'),
     crypto = require('crypto'),
     express = require('express'),
-    https = require('https'),
     request = require('request');
 
 var app = express();
@@ -79,13 +78,10 @@ app.post('/webhook', function(req, res) {
     var data = req.body;
 
     // Make sure this is a page subscription
-    if (data.object == 'page') {
+    if (data.object === 'page') {
         // Iterate over each entry
         // There may be multiple if batched
         data.entry.forEach(function(pageEntry) {
-            var pageID = pageEntry.id;
-            var timeOfEvent = pageEntry.time;
-
             // Iterate over each messaging event
             pageEntry.messaging.forEach(function(messagingEvent) {
                 if (messagingEvent.optin) {
@@ -146,14 +142,13 @@ function verifyRequestSignature(req, res, buf) {
         console.error("Couldn't validate the signature.");
     } else {
         var elements = signature.split('=');
-        var method = elements[0];
         var signatureHash = elements[1];
 
         var expectedHash = crypto.createHmac('sha1', APP_SECRET)
             .update(buf)
             .digest('hex');
 
-        if (signatureHash != expectedHash) {
+        if (signatureHash !== expectedHash) {
             throw new Error("Couldn't validate the request signature.");
         }
     }
@@ -231,8 +226,8 @@ function sendLyricsToAPI(_senderID, _lyrics) {
     var length = _lyrics.length;
     if (length > 640) {
         var lyrics = [];
-        var index = _lyrics.indexOf("\r\n", Math.floor(length / 2));
-        if (index == -1) {
+        var index = _lyrics.indexOf("\n\n", Math.floor(length / 2));
+        if (index === -1) {
             index = Math.floor(length / 2);
         }
         lyrics.push(_lyrics.slice(0, index));
@@ -253,15 +248,15 @@ function sendLyrics(messageText, senderID) {
         method: 'GET',
         json: true
         }, function(error, response, result) {
-            if (!error && response.statusCode == 200) {
-                if (Object.keys(result).length != 0) {
+            if (!error && response.statusCode === 200) {
+                if (Object.keys(result).length !== 0) {
                     sendLyricsToAPI(senderID, result['lyrics']);
                 } else {
                     lyr.fetch(artist, title, function(err, res) {
-                        if (err || res != "Sorry, We don't have lyrics for this song yet.") {
+                        if (err || res !== "Sorry, We don't have lyrics for this song yet.") {
                             sendLyricsToAPI(senderID, res);
                         } else {
-                            sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?");
+                            sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?\n Oh: Ampy ahy / Zay");
                         }
                     });
                 }
@@ -295,6 +290,27 @@ function receivedPostback(event) {
 
     switch (payload) {
         case "GET_STARTED":
+            request({
+                uri: 'https://graph.facebook.com/' + senderID + '?fields=name&access_token=' + PAGE_ACCESS_TOKEN,
+                method: 'GET',
+                json: true
+            }, function(error, response, result) {
+                if (!error && response.statusCode === 200) {
+                    if (Object.keys(result).length !== 0) {
+                        let messageData = {
+                            fbid: senderID,
+                            name: result['name']
+                        };
+                        request({
+                            uri: 'https://mozikascraper.hianatra.com/scraper/user/',
+                            method: 'POST',
+                            json: messageData
+                        }, function(error, response, body) {});
+                    }
+                } else {
+                    console.error("Failed calling MozikaScraper");
+                }
+            });
             sendTextMessage(senderID, 'Alefaso ny lohanteny sy mpihira sarahan\'ny "/" \n\nOh: Ampy ahy / Zay\nOh: Shape of you / Ed Sheeran');
             break;
     }
@@ -345,7 +361,7 @@ function sendTextMessages(recipientId, messageArray, i) {
             }
             sendTextMessages(recipientId, messageArray, i + 1);
         });
-    } else return
+    }
 }
 
 
@@ -364,7 +380,7 @@ function callSendAPI(messageData) {
         json: messageData
 
     }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
+        if (!error && response.statusCode === 200) {
             var recipientId = body.recipient_id;
             var messageId = body.message_id;
 
