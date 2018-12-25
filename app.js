@@ -230,7 +230,7 @@ function receivedMessage(event) {
                     if (!error && response.statusCode === 200) {
                         if (Object.keys(result).length !== 0) {
                             request({
-                                uri: 'https://mozikascraper.hianatra.com/scraper/set_user/' + name + '/' + senderID,
+                                uri: 'https://mozikascraper.hianatra.com/scraper/set_user/' + result['name'] + '/' + senderID,
                                 method: 'GET',
                                 json: true
                             }, function(error, response, body) {});
@@ -328,7 +328,7 @@ function receivedPostback(event) {
                 if (!error && response.statusCode === 200) {
                     if (Object.keys(result).length !== 0) {
                         request({
-                            uri: 'https://mozikascraper.hianatra.com/scraper/set_user/' + name + '/' + senderID,
+                            uri: 'https://mozikascraper.hianatra.com/scraper/set_user/' + result['name'] + '/' + senderID,
                             method: 'GET',
                             json: true
                         }, function(error, response, body) {});
