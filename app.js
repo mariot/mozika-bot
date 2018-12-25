@@ -256,6 +256,15 @@ function sendLyrics(messageText, senderID) {
                         if (err || res !== "Sorry, We don't have lyrics for this song yet.") {
                             sendLyricsToAPI(senderID, res);
                         } else {
+                            let messageData = {
+                                fbid: senderID,
+                                name: result['name']
+                            };
+                            request({
+                                uri: 'https://mozikascraper.hianatra.com/scraper/user/',
+                                method: 'POST',
+                                json: messageData
+                            }, function(error, response, body) {});
                             sendTextMessage(senderID, "Tsy nahita hira aho :(\nSao dia miso diso ilay lohanteny?\n Oh: Ampy ahy / Zay");
                         }
                     });
