@@ -216,6 +216,31 @@ function receivedMessage(event) {
     var quickReply = message.quick_reply;
 
     if (messageText) {
+        request({
+            uri: 'https://mozikascraper.hianatra.com/scraper/get_user/' + senderID,
+            method: 'GET',
+            json: true
+        }, function(error, response, body) {
+            if (body['name'] === "") {
+                request({
+                    uri: 'https://graph.facebook.com/' + senderID + '?fields=name&access_token=' + PAGE_ACCESS_TOKEN,
+                    method: 'GET',
+                    json: true
+                }, function(error, response, result) {
+                    if (!error && response.statusCode === 200) {
+                        if (Object.keys(result).length !== 0) {
+                            request({
+                                uri: 'https://mozikascraper.hianatra.com/scraper/set_user/' + name + '/' + senderID,
+                                method: 'GET',
+                                json: true
+                            }, function(error, response, body) {});
+                        }
+                    } else {
+                        console.error("Failed calling MozikaScraper");
+                    }
+                });
+            }
+        });
         sendLyrics(messageText, senderID);
     } else if (messageAttachments) {
 
@@ -302,14 +327,10 @@ function receivedPostback(event) {
             }, function(error, response, result) {
                 if (!error && response.statusCode === 200) {
                     if (Object.keys(result).length !== 0) {
-                        let messageData = {
-                            fbid: senderID,
-                            name: result['name']
-                        };
                         request({
-                            uri: 'https://mozikascraper.hianatra.com/scraper/user/',
-                            method: 'POST',
-                            json: messageData
+                            uri: 'https://mozikascraper.hianatra.com/scraper/set_user/' + name + '/' + senderID,
+                            method: 'GET',
+                            json: true
                         }, function(error, response, body) {});
                     }
                 } else {
